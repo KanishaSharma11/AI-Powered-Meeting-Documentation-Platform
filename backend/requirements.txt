@@ -1,0 +1,21 @@
+fastapi # Backend API
+uvicorn[standard] # Run FastAPI
+python-multipart # Transcript file uploads
+
+sqlalchemy # Database ORM
+psycopg[binary] # PostgreSQL connection
+
+pydantic # Structured data validation
+pydantic-settings # .env configuration
+python-dotenv # Environment Variables
+
+langchain # Language model integration
+langchain-ollama # Ollama integration
+langgraph # Graph-based workflows
+
+python-docx # Word document processing
+
+boto3 # AWS SDK
+httpx # HTTP client
+
+python-docx # Word document processing
