@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IMO Meeting Calendar 2025</title>
+<style>
+  :root{
+    --navy:#06285f;
+    --navy2:#0b3474;
+    --line:#cbd3df;
+    --text:#12213a;
+    --muted:#5c6675;
+    --bg:#f4f7fb;
+    --panel:#ffffff;
+    --technical:#bcd3f2;
+    --safety:#f4dc91;
+    --environment:#efaaa8;
+    --ghg:#b9ddb1;
+    --governance:#cdb7e7;
+    --council:#efbd7e;
+    --other:#9fd7dc;
+    --ilo:#e9a5b0;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    overflow:hidden;
+  }
+
+  /* thin, tidy scrollbars for the scrollable panels */
+  .months-scroll::-webkit-scrollbar,
+  .legend::-webkit-scrollbar{width:9px}
+  .months-scroll::-webkit-scrollbar-track,
+  .legend::-webkit-scrollbar-track{background:#eef2f8}
+  .months-scroll::-webkit-scrollbar-thumb,
+  .legend::-webkit-scrollbar-thumb{background:#aebcd2;border-radius:6px}
+  .months-scroll::-webkit-scrollbar-thumb:hover,
+  .legend::-webkit-scrollbar-thumb:hover{background:#8fa1bd}
+
+  .app{
+    height:100vh;
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  header{
+    height:76px;
+    flex:0 0 76px;
+    background:var(--panel);
+    border:1px solid #d7dee8;
+    display:grid;
+    grid-template-columns:180px 1fr 180px;
+    align-items:center;
+    padding:0 16px;
+  }
+
+  .imo-mark{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:800;
+    color:#174c9c;
+    letter-spacing:-1px;
+  }
+  .imo-mark .imo{font-size:35px}
+  .imo-mark .org{
+    font-size:8px;
+    line-height:1.15;
+    letter-spacing:.3px;
+    color:#174c9c;
+  }
+  .title{
+    text-align:center;
+    font-size:31px;
+    font-weight:800;
+    letter-spacing:.5px;
+    color:#0b2f67;
+  }
+  .ship{
+    justify-self:end;
+    font-size:38px;
+  }
+
+  .toolbar{
+    height:36px;
+    flex:0 0 36px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+  }
+  button{
+    border:1px solid #b9c4d3;
+    background:white;
+    color:var(--navy);
+    border-radius:6px;
+    padding:6px 14px;
+    cursor:pointer;
+    font-weight:700;
+  }
+  button:hover{background:#eef4fc}
+  .year-label{
+    font-weight:800;
+    color:var(--navy);
+    min-width:80px;
+    text-align:center;
+  }
+
+  /* ============ CALENDAR SHELL ============ */
+  .calendar{
+    flex:1 1 auto;
+    min-height:0;
+    background:white;
+    border:1px solid #c7d0dc;
+    display:grid;
+    grid-template-columns:108px minmax(0,1fr) 245px;
+    grid-template-rows:30px 34px 1fr;
+  }
+
+  .month-head,.weeks-head,.legend-head{
+    background:var(--navy);
+    color:#fff;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-right:1px solid #4d6790;
+  }
+
+  .month-head{grid-column:1;grid-row:1}
+  .weeks-head{grid-column:2;grid-row:1}
+  .legend-head{grid-column:3;grid-row:1}
+
+  .week-spacer{
+    grid-column:1;
+    grid-row:2;
+    background:#f8fafc;
+    border-right:1px solid var(--line);
+    border-top:1px solid var(--line);
+  }
+  .weeks{
+    grid-column:2;
+    grid-row:2;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    background:#f8fafc;
+    border-top:1px solid var(--line);
+  }
+  .weeks div{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:700;
+    font-size:12px;
+    border-right:1px solid var(--line);
+    color:#26364d;
+  }
+
+  /* Scrollable month list -- lets any month grow as tall as it needs
+     (fixes April etc. getting cut off / events stacking on top of each other) */
+  .months-scroll{
+    grid-column:1 / span 2;
+    grid-row:3;
+    overflow-y:auto;
+    overflow-x:hidden;
+    min-height:0;
+  }
+
+  /* Scrollable legend/notes panel -- independent from month list,
+     so long notes never get pushed off the bottom of the page */
+  .legend{
+    grid-column:3;
+    grid-row:3;
+    border-left:1px solid var(--line);
+    background:#fff;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+  }
+  .legend-section{
+    padding:10px 12px;
+    border-bottom:1px solid var(--line);
+  }
+  .legend-title{
+    background:var(--navy);
+    color:white;
+    margin:-10px -12px 8px;
+    padding:7px 10px;
+    text-align:center;
+    font-size:12px;
+    font-weight:800;
+    position:sticky;
+    top:0;
+  }
+  .legend-item{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    font-size:11px;
+    margin:6px 0;
+  }
+  .swatch{
+    width:18px;height:14px;border:1px solid #b9c4d3;flex:0 0 auto;
+  }
+  .notes{
+    font-size:10px;
+    line-height:1.45;
+    color:#26364d;
+    margin:0;
+    padding-left:17px;
+  }
+  .abbr{
+    display:grid;
+    grid-template-columns:42px 1fr;
+    gap:4px 7px;
+    font-size:9px;
+  }
+  .abbr b{color:#142a4a}
+
+  /* ============ MONTH BLOCKS ============ */
+  .month-block{
+    display:grid;
+    grid-template-columns:108px minmax(0,1fr);
+    border-top:1px solid var(--line);
+  }
+  .month-block:first-child{border-top:0}
+
+  .month-name{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+    font-size:13px;
+    background:#edf3fb;
+    border-right:1px solid var(--line);
+  }
+
+  .timeline{
+    position:relative;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    grid-auto-rows:minmax(38px,auto);
+    row-gap:2px;
+    padding:4px 0;
+    background:
+      linear-gradient(to right,
+        transparent calc(20% - .5px), var(--line) calc(20% - .5px), var(--line) 20%, transparent 20%,
+        transparent calc(40% - .5px), var(--line) calc(40% - .5px), var(--line) 40%, transparent 40%,
+        transparent calc(60% - .5px), var(--line) calc(60% - .5px), var(--line) 60%, transparent 60%,
+        transparent calc(80% - .5px), var(--line) calc(80% - .5px), var(--line) 80%, transparent 80%);
+    min-width:0;
+  }
+  /* empty months still get a minimum height row so the grid lines show */
+  .timeline.empty{grid-auto-rows:minmax(38px,1fr)}
+
+  .event{
+    align-self:stretch;
+    margin:2px 4px;
+    min-width:0;
+    min-height:0;
+    border:1px solid rgba(65,78,100,.18);
+    border-radius:3px;
+    padding:3px 6px;
+    text-align:center;
+    font-size:9px;
+    line-height:1.12;
+    font-weight:600;
+    overflow:hidden;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    transition:transform .12s, box-shadow .12s;
+    z-index:2;
+  }
+  .event.continuation{border-left:0;border-radius:0 3px 3px 0;margin-left:0}
+  .event.continued-from{border-right:0;border-radius:3px 0 0 3px;margin-right:0}
+  .event:hover{
+    transform:scale(1.03);
+    box-shadow:0 4px 12px rgba(0,0,0,.15);
+    z-index:5;
+  }
+  .event .date{font-size:10px;font-weight:800;margin-bottom:2px}
+  .event .name{font-weight:600;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .technical{background:var(--technical)}
+  .safety{background:var(--safety)}
+  .environment{background:var(--environment)}
+  .ghg{background:var(--ghg)}
+  .governance{background:var(--governance)}
+  .council{background:var(--council)}
+  .other{background:var(--other)}
+  .ilo{background:var(--ilo)}
+
+  .footer{
+    height:20px;
+    flex:0 0 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:9px;
+    color:#39465a;
+    padding:0 5px;
+  }
+
+  .modal{
+    position:fixed;
+    inset:0;
+    background:rgba(4,19,43,.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+  }
+  .modal.open{display:flex}
+  .modal-card{
+    width:min(520px,90vw);
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+    overflow:hidden;
+  }
+  .modal-top{
+    padding:16px 18px;
+    background:var(--navy);
+    color:#fff;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .modal-top h2{font-size:18px;margin:0}
+  .close{
+    color:white;
+    background:transparent;
+    border:0;
+    padding:0 4px;
+    font-size:24px;
+    cursor:pointer;
+  }
+  .modal-body{padding:18px;font-size:14px;line-height:1.5}
+  .tag{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:20px;
+    background:#eef3fa;
+    font-size:11px;
+    font-weight:800;
+    margin-top:8px;
+  }
+
+  @media(max-width:1000px){
+    header{grid-template-columns:120px 1fr 80px;padding:0 8px}
+    .title{font-size:22px}
+    .imo-mark .imo{font-size:28px}
+    .imo-mark .org{display:none}
+    .calendar{grid-template-columns:75px minmax(0,1fr) 190px}
+    .event{font-size:7px;padding:2px 3px}
+    .event .date{font-size:8px}
+    .legend-item{font-size:9px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="imo-mark">
+      <div class="imo">IMO</div>
+      <div class="org">INTERNATIONAL<br>MARITIME<br>ORGANIZATION</div>
+    </div>
+    <div class="title">IMO MEETING CALENDAR <span id="headerYear">2025</span></div>
+    <div class="ship">⚓</div>
+  </header>
+
+  <div class="toolbar">
+    <button id="prev">‹</button>
+    <div class="year-label" id="yearLabel">2025</div>
+    <button id="today">2025</button>
+    <button id="next">›</button>
+  </div>
+
+  <main class="calendar">
+    <div class="month-head">MONTH</div>
+    <div class="weeks-head">WEEK / DATES (<span id="weekYear">2025</span>)</div>
+    <div class="legend-head">MEETING CATEGORIES</div>
+    <div class="week-spacer"></div>
+    <div class="weeks">
+      <div>1 – 5</div><div>6 – 12</div><div>13 – 19</div><div>20 – 26</div><div>27 – 31</div>
+    </div>
+
+    <div class="months-scroll" id="monthsScroll">
+      <div id="months"></div>
+    </div>
+
+    <aside class="legend">
+      <section class="legend-section">
+        <div class="legend-title">MEETING CATEGORIES</div>
+        <div class="legend-item"><span class="swatch technical"></span>Technical / Sub-Committee Meetings</div>
+        <div class="legend-item"><span class="swatch safety"></span>Safety / Navigation Meetings</div>
+        <div class="legend-item"><span class="swatch environment"></span>Environment Meetings</div>
+        <div class="legend-item"><span class="swatch ghg"></span>GHG / Environmental Working Groups</div>
+        <div class="legend-item"><span class="swatch governance"></span>Facilitation / Legal / Governance</div>
+        <div class="legend-item"><span class="swatch council"></span>Council Sessions</div>
+        <div class="legend-item"><span class="swatch other"></span>IMSO / IOPC / Other Bodies</div>
+        <div class="legend-item"><span class="swatch ilo"></span>ILO / Geneva Meetings</div>
+      </section>
+      <section class="legend-section">
+        <div class="legend-title">NOTES</div>
+        <ul class="notes">
+          <li>Dates are based on the IMO Meetings Schedule 2025.</li>
+          <li>Most meetings are held at IMO, London unless otherwise indicated.</li>
+          <li>ILO meetings in April are held in Geneva.</li>
+          <li>This calendar is for planning purposes and subject to change.</li>
+        </ul>
+      </section>
+      <section class="legend-section">
+        <div class="legend-title">ABBREVIATIONS</div>
+        <div class="abbr">
+          <b>SDC</b><span>Ship Design and Construction</span>
+          <b>PPR</b><span>Pollution Prevention and Response</span>
+          <b>HTW</b><span>Human Element, Training & Watchkeeping</span>
+          <b>GHG</b><span>Greenhouse Gas</span>
+          <b>SSE</b><span>Ship Systems and Equipment</span>
+          <b>FAL</b><span>Facilitation Committee</span>
+          <b>LEG</b><span>Legal Committee</span>
+          <b>MEPC</b><span>Marine Environment Protection Committee</span>
+          <b>MLC</b><span>Maritime Labour Convention</span>
+          <b>NCSR</b><span>Navigation, Communications and Search and Rescue</span>
+          <b>TCC</b><span>Technical Cooperation Committee</span>
+          <b>MSC</b><span>Maritime Safety Committee</span>
+          <b>CCC</b><span>Carriage of Cargoes and Containers</span>
+          <b>IOPC</b><span>International Oil Pollution Compensation Funds</span>
+          <b>IMSO</b><span>International Mobile Satellite Organization</span>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <div class="footer">
+    <span><i>Source: IMO Meetings Schedule – 2025 (Annex-I)</i></span>
+    <span><i>Prepared for: Ministry of Ports, Shipping and Waterways / Directorate General of Shipping, Mumbai</i></span>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-top">
+      <h2 id="modalTitle"></h2>
+      <button class="close" id="close">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="modalDate"></div>
+      <div id="modalLocation"></div>
+      <div class="tag" id="modalCategory"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const events = [
+  {m:0,s:3,e:3,date:"13 – 17 Jan",name:"Sub-Committee on Ship Design and Construction (SDC 11)",cat:"technical",loc:"IMO, London"},
+  {m:0,s:5,e:5,date:"27 – 31 Jan",name:"Sub-Committee on Pollution Prevention and Response (PPR 12)",cat:"technical",loc:"IMO, London"},
+  {m:1,s:2,e:2,date:"10 – 14 Feb",name:"Sub-Committee on Human Element, Training and Watchkeeping (HTW 11)",cat:"safety",loc:"IMO, London"},
+  {m:1,s:3,e:3,date:"17 – 21 Feb",name:"18th Intersessional Working Group on GHG",cat:"ghg",loc:"IMO, London"},
+  {m:1,s:4,e:4,date:"24 – 28 Feb",name:"Sub-Committee on Ship Systems and Equipment (SSE 11)",cat:"technical",loc:"IMO, London"},
+  {m:2,s:2,e:2,date:"10 – 14 Mar",name:"Facilitation Committee (FAL 49)",cat:"governance",loc:"IMO, London"},
+  {m:2,s:4,e:4,date:"24 – 28 Mar",name:"Legal Committee (LEG 112)",cat:"council",loc:"IMO, London"},
+  {m:2,s:5,e:5,date:"31 Mar",name:"19th Intersessional WG-GHG & 1st WG-APEE",cat:"ghg",loc:"IMO, London",part:"continued-from"},
+  {m:3,s:1,e:1,date:"01 – 04 Apr",name:"19th Intersessional WG-GHG & 1st WG-APEE",cat:"ghg",loc:"IMO, London",part:"continuation"},
+  {m:3,s:1,e:1,date:"07 – 11 Apr",name:"Marine Environment Protection Committee (MEPC 83)",cat:"environment",loc:"IMO, London"},
+  {m:3,s:1,e:1,date:"07 – 11 Apr",name:"Special Tripartite Committee (MLC 2006)",cat:"ilo",loc:"Geneva"},
+  {m:3,s:2,e:2,date:"14 – 15 Apr",name:"Joint Maritime Commission – Subcommittee on Wages of Seafarers",cat:"other",loc:"Geneva"},
+  {m:3,s:3,e:3,date:"21 – 23 Apr",name:"Meeting of Experts on Seafarers’ Identity Documents Convention (Revised), 2003",cat:"safety",loc:"Geneva"},
+  {m:3,s:5,e:5,date:"28 Apr – 02 May",name:"IOPC Funds Meeting",cat:"technical",loc:"IMO, London"},
+  {m:4,s:2,e:2,date:"12 – 16 May",name:"Sub-Committee on Navigation, Communications and Search and Rescue (NCSR 12)",cat:"safety",loc:"IMO, London"},
+  {m:4,s:3,e:3,date:"19 – 23 May",name:"IMSO Meeting / Related Meeting",cat:"technical",loc:"IMO, London"},
+  {m:5,s:1,e:1,date:"02 – 06 Jun",name:"Technical Cooperation Committee (TCC 75)",cat:"governance",loc:"IMO, London"},
+  {m:5,s:2,e:2,date:"09 – 13 Jun",name:"IMSO Assembly Committee (AC 51)",cat:"other",loc:"IMO, London"},
+  {m:5,s:3,e:3,date:"16 – 20 Jun",name:"Maritime Safety Committee (MSC 110)",cat:"safety",loc:"IMO, London"},
+  {m:6,s:1,e:1,date:"07 – 11 Jul",name:"Council 134th Session",cat:"council",loc:"IMO, London"},
+  {m:6,s:4,e:4,date:"21 – 25 Jul",name:"Sub-Committee on Implementation of IMO Instruments (III 11)",cat:"safety",loc:"IMO, London"},
+  {m:8,s:2,e:2,date:"08 – 12 Sep",name:"Sub-Committee on Carriage of Cargoes and Containers (CCC 11)",cat:"technical",loc:"IMO, London"},
+  {m:9,s:3,e:3,date:"13 – 17 Oct",name:"MEPC / ES.2",cat:"environment",loc:"IMO, London"},
+  {m:9,s:4,e:4,date:"20 – 24 Oct",name:"IOPC Funds Meeting",cat:"technical",loc:"IMO, London"},
+  {m:9,s:5,e:5,date:"27 – 31 Oct",name:"London Convention and London Protocol Meeting",cat:"safety",loc:"IMO, London"},
+  {m:10,s:1,e:1,date:"03 – 07 Nov",name:"IMSO Assembly Committee (AC 52)",cat:"other",loc:"IMO, London"},
+  {m:10,s:3,e:3,date:"17 – 21 Nov",name:"Council 135th Session",cat:"council",loc:"IMO, London"},
+  {m:10,s:4,e:4,date:"24 – 28 Nov",name:"IMO Assembly 34th Session",cat:"governance",loc:"IMO, London"},
+  {m:11,s:1,e:1,date:"01 – 05 Dec",name:"Assembly 34 / Council 136th Session",cat:"governance",loc:"IMO, London"}
+];
+
+const months = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+const catLabels = {
+  technical:"Technical / Sub-Committee",
+  safety:"Safety / Navigation",
+  environment:"Environment",
+  ghg:"GHG / Environmental WG",
+  governance:"Facilitation / Legal / Governance",
+  council:"Council Session",
+  other:"IMSO / IOPC / Other",
+  ilo:"ILO / Geneva"
+};
+const monthsEl = document.getElementById("months");
+let year = 2025;
+
+// Assigns a non-overlapping "row" to every event in a month so that
+// any number of meetings sharing the same week (e.g. April) stack
+// cleanly underneath one another instead of on top of each other.
+function assignRows(evts){
+  const sorted = evts.slice().sort((a,b)=> a.s-b.s || a.e-b.e);
+  const rowEnds = []; // last occupied column ("e") for each row
+  sorted.forEach(ev=>{
+    let placedRow = -1;
+    for(let r=0;r<rowEnds.length;r++){
+      if(ev.s > rowEnds[r]){ placedRow = r; break; }
+    }
+    if(placedRow === -1){
+      placedRow = rowEnds.length;
+      rowEnds.push(ev.e);
+    } else {
+      rowEnds[placedRow] = ev.e;
+    }
+    ev._row = placedRow;
+  });
+  return rowEnds.length;
+}
+
+function openModal(ev){
+  document.getElementById("modalTitle").textContent = ev.name;
+  document.getElementById("modalDate").innerHTML = "<strong>Date:</strong> " + ev.date;
+  document.getElementById("modalLocation").innerHTML = "<strong>Location:</strong> " + ev.loc;
+  document.getElementById("modalCategory").textContent = (catLabels[ev.cat] || ev.cat).toUpperCase();
+  document.getElementById("modal").classList.add("open");
+}
+
+function render(){
+  document.getElementById("headerYear").textContent = year;
+  document.getElementById("yearLabel").textContent = year;
+  document.getElementById("weekYear").textContent = year;
+  monthsEl.innerHTML = "";
+
+  months.forEach((month,i)=>{
+    const block = document.createElement("div");
+    block.className = "month-block";
+
+    const label = document.createElement("div");
+    label.className = "month-name";
+    label.textContent = month;
+    block.appendChild(label);
+
+    const monthEvents = events.filter(x=>x.m===i);
+
+    const row = document.createElement("div");
+    row.className = "timeline" + (monthEvents.length===0 ? " empty" : "");
+
+    const rowCount = assignRows(monthEvents);
+    row.style.gridTemplateRows = `repeat(${Math.max(rowCount,1)}, minmax(38px, auto))`;
+
+    monthEvents.forEach(ev=>{
+      const el = document.createElement("div");
+      el.className = `event ${ev.cat}`;
+      el.style.gridColumn = `${ev.s} / ${ev.e+1}`;
+      el.style.gridRow = `${ev._row+1}`;
+      if(ev.part) el.classList.add(ev.part);
+      el.innerHTML = `<div class="date">${ev.date}</div><div class="name">${ev.name}</div>`;
+      el.addEventListener("click", ()=>openModal(ev));
+      row.appendChild(el);
+    });
+
+    block.appendChild(row);
+    monthsEl.appendChild(block);
+  });
+}
+render();
+
+document.getElementById("prev").onclick=()=>{year--;render()};
+document.getElementById("next").onclick=()=>{year++;render()};
+document.getElementById("today").onclick=()=>{year=2025;render()};
+document.getElementById("close").onclick=()=>document.getElementById("modal").classList.remove("open");
+document.getElementById("modal").addEventListener("click",(e)=>{
+  if(e.target.id==="modal") e.currentTarget.classList.remove("open");
+});
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape") document.getElementById("modal").classList.remove("open");
+  if(e.key==="ArrowLeft"){year--;render()}
+  if(e.key==="ArrowRight"){year++;render()}
+});
+</script>
+</body>
+</html>
