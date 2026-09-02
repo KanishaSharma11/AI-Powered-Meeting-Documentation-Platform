@@ -2,68 +2,39 @@ from pydantic import BaseModel, Field
 
 
 class MOMRequirement(BaseModel):
-    """
-    A requirement displayed in the generated MOM.
-
-    Evidence is deliberately NOT included in this model.
-    Evidence is maintained separately in the verified
-    intelligence layer and will later be accessible
-    through the meeting evidence chat.
-    """
-
-    text: str = Field(
-        description=(
-            "Requirement displayed in the Minutes of Meeting."
-        )
-    )
+    text: str = Field(description="Requirement displayed in the Minutes of Meeting.")
 
 
 class MOMDecision(BaseModel):
-    """
-    A decision displayed in the generated MOM.
+    text: str = Field(description="Decision displayed in the Minutes of Meeting.")
 
-    Evidence is deliberately NOT included in this model.
-    """
 
-    text: str = Field(
-        description=(
-            "Decision displayed in the Minutes of Meeting."
-        )
-    )
+class MOMActionItem(BaseModel):
+    text: str
+    owner: str | None = None
+    due_date: str | None = None
+
+
+class MOMRiskOrQuestion(BaseModel):
+    text: str
+    category: str  # risk | blocker | open_question
 
 
 class MOMDocument(BaseModel):
     """
     Clean, human-readable Minutes of Meeting.
 
-    This model intentionally contains no evidence metadata.
-
-    Evidence remains available internally through the
-    VerifiedExtractionResult and can later be retrieved
-    through the meeting chat system.
+    This model intentionally contains no evidence metadata in the
+    generated document body — evidence stays queryable via the
+    /meetings/{id}/extractions API (Section 1.3) rather than
+    cluttering the delivered MOM itself.
     """
 
-    meeting_title: str = Field(
-        default="Meeting Minutes",
-        description="Title of the meeting.",
-    )
+    meeting_title: str = Field(default="Meeting Minutes")
+    meeting_date: str | None = None
+    participants: list[str] = Field(default_factory=list)
 
-    meeting_date: str | None = Field(
-        default=None,
-        description="Date of the meeting.",
-    )
-
-    participants: list[str] = Field(
-        default_factory=list,
-        description="Participants identified from the meeting.",
-    )
-
-    requirements: list[MOMRequirement] = Field(
-        default_factory=list,
-        description="Requirements included in the MOM.",
-    )
-
-    decisions: list[MOMDecision] = Field(
-        default_factory=list,
-        description="Decisions included in the MOM.",
-    )
+    requirements: list[MOMRequirement] = Field(default_factory=list)
+    decisions: list[MOMDecision] = Field(default_factory=list)
+    action_items: list[MOMActionItem] = Field(default_factory=list)
+    risks: list[MOMRiskOrQuestion] = Field(default_factory=list)

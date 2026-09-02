@@ -1,21 +1,17 @@
-fastapi # Backend API
-uvicorn[standard] # Run FastAPI
-python-multipart # Transcript file uploads
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+sqlalchemy==2.0.36
+psycopg[binary]==3.2.3
+pydantic==2.10.3
+pydantic-settings==2.7.0
+python-multipart==0.0.19
 
-sqlalchemy # Database ORM
-psycopg[binary] # PostgreSQL connection
+langchain==0.3.13
+langchain-core==0.3.28
+langchain-ollama==0.2.2
 
-pydantic # Structured data validation
-pydantic-settings # .env configuration
-python-dotenv # Environment Variables
+python-docx==1.1.2
 
-langchain # Language model integration
-langchain-ollama # Ollama integration
-langgraph # Graph-based workflows
-
-python-docx # Word document processing
-
-boto3 # AWS SDK
-httpx # HTTP client
-
-python-docx # Word document processing
+pytest==8.3.4
+pytest-cov==6.0.0
+httpx==0.28.1
