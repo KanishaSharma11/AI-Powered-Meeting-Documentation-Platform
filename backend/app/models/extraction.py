@@ -1,12 +1,12 @@
 import uuid
 from datetime import datetime
 
-from backend.app.models.meeting import Meeting
-from sqlalchemy import String, Text, Float, DateTime, ForeignKey, func
+from sqlalchemy import String, Text, Float, DateTime, ForeignKey, ForeignKeyConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+from app.models.meeting import Meeting
 
 
 class ExtractedItem(Base):
@@ -22,6 +22,17 @@ class ExtractedItem(Base):
     """
 
     __tablename__ = "extracted_items"
+    __table_args__ = (
+        # Composite FK, not a single-column one on segment_id: segment
+        # IDs like "SEG-0001" reset per meeting, so segment_id alone
+        # is never unique — only (meeting_id, segment_id) together
+        # identifies one real transcript segment. Matches the
+        # composite UniqueConstraint on transcript_segments.
+        ForeignKeyConstraint(
+            ["meeting_id", "segment_id"],
+            ["transcript_segments.meeting_id", "transcript_segments.segment_id"],
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
@@ -44,9 +55,7 @@ class ExtractedItem(Base):
     due_date: Mapped[str | None] = mapped_column(String(60), nullable=True)
 
     # --- Evidence (Section 1.3) ---
-    segment_id: Mapped[str] = mapped_column(
-        ForeignKey("transcript_segments.segment_id"), nullable=True
-    )
+    segment_id: Mapped[str | None] = mapped_column(String(20), nullable=True)
     evidence_speaker: Mapped[str | None] = mapped_column(String(120), nullable=True)
     evidence_timestamp: Mapped[str | None] = mapped_column(String(20), nullable=True)
     evidence_text: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -62,6 +71,14 @@ class ExtractedItem(Base):
     edited_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     reviewed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
+    )
+
+    # --- Knowledge fusion (Stage 3, Section 2.4) ---
+    # Set the first time this item is reconciled into a project-level
+    # ProjectFact (only happens if the item's meeting belongs to a
+    # project). Prevents re-fusing the same item on a later re-review.
+    project_fact_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("project_facts.id"), nullable=True
     )
 
     created_at: Mapped[datetime] = mapped_column(

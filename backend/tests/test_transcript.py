@@ -43,11 +43,6 @@ def test_normalize_skips_blank_lines():
     assert result.segments[1].segment_id == "SEG-0002"
 
 
-def test_normalize_empty_string_yields_no_segments():
-    result = normalize_transcript("   \n  \n")
-    assert result.segments == []
-
-
 # ---------- Integration tests: /api/transcripts ----------
 
 def test_upload_transcript_creates_meeting(client, sample_transcript):

@@ -10,6 +10,7 @@ from app.models.extraction import ExtractedItem
 from app.models.meeting import Meeting
 from app.schemas.api import ExtractedItemOut, ExtractionRunResult, ReviewAction
 from app.services.extraction_service import run_extraction
+from app.services.fusion_service import maybe_fuse_item
 
 router = APIRouter(tags=["extraction"])
 
@@ -33,6 +34,7 @@ def _to_out(item: ExtractedItem) -> ExtractedItemOut:
         review_status=item.review_status,
         edited_text=item.edited_text,
         final_text=item.final_text,
+        project_fact_id=item.project_fact_id,
     )
 
 
@@ -118,5 +120,12 @@ def review_item(item_id: uuid.UUID, payload: ReviewAction, db: Session = Depends
 
     db.commit()
     db.refresh(item)
+
+    # Stage 3: reconcile into project-level knowledge, if this
+    # meeting belongs to a project. No-ops otherwise (see
+    # services/fusion_service.py).
+    if action in ("accept", "edit"):
+        maybe_fuse_item(db, item)
+        db.refresh(item)
 
     return _to_out(item)

@@ -1,4 +1,3 @@
-
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -8,9 +7,9 @@ from app.core.config import settings
 from app.core.database import Base, engine
 
 # Import models so they're registered on Base.metadata before create_all.
-import app.models
+import app.models  # noqa: F401
 
-from app.api import transcript, extraction, mom
+from app.api import transcript, extraction, mom, projects, templates, documents
 
 
 @asynccontextmanager
@@ -32,9 +31,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Wide open for local dev with a separate React dev server (e.g. Vite on
-# :5173 / CRA on :3000). Narrow this to your actual frontend origin(s)
-# before deploying anywhere shared.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -46,6 +42,9 @@ app.add_middleware(
 app.include_router(transcript.router, prefix="/api")
 app.include_router(extraction.router, prefix="/api")
 app.include_router(mom.router, prefix="/api")
+app.include_router(projects.router, prefix="/api")
+app.include_router(templates.router, prefix="/api")
+app.include_router(documents.router, prefix="/api")
 
 
 @app.get("/api")

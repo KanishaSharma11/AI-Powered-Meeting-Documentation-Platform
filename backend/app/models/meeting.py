@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, date
 
-from sqlalchemy import String, Date, DateTime, func
+from sqlalchemy import String, Date, DateTime, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,6 +28,14 @@ class Meeting(Base):
     # "official_transcript"; later stages add bot/screen-share sources.
     source_type: Mapped[str] = mapped_column(String(50), default="official_transcript")
 
+    # Optional (Stage 3): when set, accepted/edited items from this
+    # meeting get reconciled against the project's existing facts
+    # (see services/fusion_service.py). A meeting with no project
+    # behaves exactly as in Stage 1/2 — standalone, no fusion.
+    project_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=True
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -39,3 +47,5 @@ class Meeting(Base):
     extracted_items: Mapped[list["ExtractedItem"]] = relationship(
         "ExtractedItem", back_populates="meeting", cascade="all, delete-orphan"
     )
+
+    project: Mapped["Project"] = relationship("Project", back_populates="meetings")

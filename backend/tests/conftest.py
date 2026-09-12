@@ -12,7 +12,7 @@ below.
 import os
 import uuid
 
-os.environ["DATABASE_URL"] = "sqlite:///./test_pytest.db"
+os.environ.setdefault("DATABASE_URL", "sqlite:///./test_pytest.db")
 
 import pytest
 from fastapi.testclient import TestClient
@@ -74,6 +74,36 @@ def meeting_with_segments(db, client, sample_transcript):
     res = client.post(
         "/api/transcripts/upload",
         json={"title": "Fixture Meeting", "raw_transcript": sample_transcript},
+    )
+    assert res.status_code == 200, res.text
+    meeting_id = res.json()["id"]
+
+    segments = (
+        db.query(TranscriptSegment)
+        .filter(TranscriptSegment.meeting_id == uuid.UUID(meeting_id))
+        .order_by(TranscriptSegment.source_line_start)
+        .all()
+    )
+    return meeting_id, segments
+
+
+@pytest.fixture()
+def project(client):
+    res = client.post("/api/projects", json={"name": "Fixture Project", "description": "Test project"})
+    assert res.status_code == 200, res.text
+    return res.json()
+
+
+@pytest.fixture()
+def meeting_in_project(db, client, project):
+    """A meeting that belongs to `project`, with normalized segments."""
+    res = client.post(
+        "/api/transcripts/upload",
+        json={
+            "title": "Project Meeting 1",
+            "raw_transcript": "Sarah: OTP login is required.\nRaj: Agreed, approved.",
+            "project_id": project["id"],
+        },
     )
     assert res.status_code == 200, res.text
     meeting_id = res.json()["id"]

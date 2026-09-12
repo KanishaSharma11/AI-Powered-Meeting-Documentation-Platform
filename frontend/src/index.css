@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-paper: #F6F3EC;
+  --color-paper-raised: #FFFFFF;
+  --color-ink: #1F3B57;
+  --color-ink-soft: #4C5F73;
+  --color-body: #2B2E33;
+  --color-rule: #DAD3C3;
+  --color-amber: #C98A2C;
+  --color-amber-soft: #F1E2C4;
+  --color-brick: #B4483D;
+  --color-brick-soft: #F5DCD9;
+  --color-sage: #587A5C;
+  --color-sage-soft: #DEE9DE;
+
+  --font-display: 'Source Serif 4', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-body);
+  font-family: var(--font-body);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-rule);
+  border-radius: 6px;
+}

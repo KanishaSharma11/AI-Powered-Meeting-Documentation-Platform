@@ -1,11 +1,11 @@
 import uuid
 
-from backend.app.models.meeting import Meeting
-from sqlalchemy import String, Text, Integer, ForeignKey
+from sqlalchemy import String, Text, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+from app.models.meeting import Meeting
 
 
 class TranscriptSegment(Base):
@@ -19,6 +19,15 @@ class TranscriptSegment(Base):
     """
 
     __tablename__ = "transcript_segments"
+    __table_args__ = (
+        # segment_id (e.g. "SEG-0001") resets per meeting, so it is
+        # only unique in combination with meeting_id — never on its
+        # own. This composite constraint is what extracted_items'
+        # composite foreign key (see models/extraction.py) points at.
+        UniqueConstraint(
+            "meeting_id", "segment_id", name="uq_transcript_segments_meeting_segment"
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
