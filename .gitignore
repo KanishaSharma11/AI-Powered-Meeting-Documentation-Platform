@@ -1,6 +1,5 @@
 # Environment
 .env
-backend/.env
 *.env
 
 # Python
@@ -13,7 +12,7 @@ venv/
 backend/data/
 *.db
 
-# Node (frontend, if added later)
+# Node
 node_modules/
 dist/
 
@@ -21,6 +20,3 @@ dist/
 .DS_Store
 .vscode/
 .idea/
-
-#venv
-venv/
