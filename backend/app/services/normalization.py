@@ -1,42 +1,28 @@
-"""
-Speech & Text Normalization (Section 2.2, step 3).
-
-Delegates to TranscriptNormalizationService for the actual parsing —
-that class handles far more real-world transcript formats (two-line
-Speaker/Timestamp blocks, bracketed/parenthesized timestamps in either
-order, dash-separated, continuation lines) than a single-pattern regex
-could. This module exists to keep normalize_transcript() as the one
-stable entry point everything else (app/api/transcript.py,
-app/services/extraction_service.py) already imports.
-"""
-
 from app.schemas.transcript import NormalizedTranscript, TranscriptSegment
 from app.services.normalization_service import TranscriptNormalizationService
 
 _service = TranscriptNormalizationService()
 
-
 def normalize_transcript(raw_text: str) -> NormalizedTranscript:
     return _service.normalize(raw_text)
 
-
-def render_segments_for_prompt(segments: list[TranscriptSegment]) -> str:
+def render_segments_for_prompt(segments) -> str:
     """
-    Render normalized segments into the block format the extraction
-    prompts expect (see requirements_decisions prompt for the exact
-    shape being matched).
+    Renders segments into the block format extraction prompts expect.
+
+    Accepts EITHER the Pydantic TranscriptSegment schema (attribute
+    timestamp_start, produced by normalize_transcript) OR a real
+    database TranscriptSegment ORM row (attribute timestamp) — several
+    callers pass DB rows directly (e.g. document_generator_service.py's
+    dynamic_custom extraction), so this must not assume one shape.
     """
     blocks = []
     for seg in segments:
+        timestamp = getattr(seg, "timestamp_start", None) or getattr(seg, "timestamp", None) or "N/A"
         blocks.append(
-            "SEGMENT ID: {sid}\n"
-            "SPEAKER: {speaker}\n"
-            "TIMESTAMP: {ts}\n"
-            "TEXT: {text}".format(
-                sid=seg.segment_id,
-                speaker=seg.speaker or "Unknown",
-                ts=seg.timestamp_start or "N/A",
-                text=seg.text,
+            "SEGMENT ID: {sid}\nSPEAKER: {speaker}\nTIMESTAMP: {ts}\nTEXT: {text}".format(
+                sid=seg.segment_id, speaker=seg.speaker or "Unknown",
+                ts=timestamp, text=seg.text,
             )
         )
     return "\n\n".join(blocks)

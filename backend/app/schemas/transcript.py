@@ -13,5 +13,3 @@ class NormalizedTranscript(BaseModel):
     segments: list[TranscriptSegment] = Field(default_factory=list)
     original_text: str
     source_format: str
-
-    

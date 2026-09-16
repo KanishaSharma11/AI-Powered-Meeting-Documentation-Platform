@@ -14,61 +14,46 @@ TEXT: I'm worried the vendor API won't be ready before launch.
 The SEGMENT ID is the authoritative identifier for the transcript
 segment.
 
-IMPORTANT:
-
-You must use the segment_id of the transcript segment that directly
-supports each extracted item.
-
 EVIDENCE RULES:
 
 1. Every item MUST reference a real transcript segment.
 
 2. The evidence.segment_id MUST exactly match one of the supplied
-   segment IDs.
+   segment IDs. NEVER invent a segment ID.
 
-3. NEVER invent a segment ID.
+3. NEVER invent evidence, speakers, or timestamps.
 
-4. NEVER invent evidence.
-
-5. NEVER invent speakers or timestamps.
-
-6. You only need to return the segment_id as the evidence reference.
-   The application will retrieve the speaker, timestamp, original
-   transcript text, and source line information automatically.
+4. You only need to return the segment_id as the evidence reference.
+   The application resolves speaker/timestamp/text automatically.
 
 CLASSIFICATION RULES:
 
-7. category = "risk": a concern raised about something that might go
-   wrong in the future (e.g. a dependency, timeline, or quality
-   concern).
+5. category = "risk": a concern about something that might go wrong
+   in the future.
 
-8. category = "blocker": something explicitly stated as currently
+6. category = "blocker": something explicitly stated as currently
    preventing progress right now.
 
-9. category = "open_question": a question raised in the meeting that
-   was NOT answered or resolved during the discussion.
+7. category = "open_question": a question raised that was NOT
+   answered or resolved during the discussion.
 
-10. Do not classify a rhetorical question or a question that was
-    immediately answered as an open_question.
+8. Do not classify a rhetorical or immediately-answered question as
+   an open_question.
 
-11. Do not treat ordinary discussion, opinions, or brainstorming as a
-    risk unless a genuine concern is expressed.
+9. Do not treat ordinary discussion or opinions as a risk unless a
+   genuine concern is expressed.
 
 GENERAL RULES:
 
-12. Do not invent information.
+10. Do not invent information not supported by the transcript.
 
-13. Do not add information not supported by the transcript.
+11. Avoid duplicate items.
 
-14. Avoid duplicate items — if several segments discuss the same risk
-    or question, select the strongest and most direct supporting
-    segment.
+12. Confidence represents confidence in the extraction, not whether
+    the risk is likely to materialize.
 
-15. Confidence represents confidence in the extraction, not whether
-    the risk is likely to materialize or the question is important.
+13. Preserve the meaning of the meeting discussion.
 
-16. Preserve the meaning of the meeting discussion.
-
-You are performing structured evidence extraction. Do not generate a
-MOM. Return only the requested structured output.
+You are performing structured evidence extraction only. Return only
+the requested structured output.
 """

@@ -5,7 +5,10 @@
 # create_all() topologically sorts by FK dependency regardless.
 from app.models.project import Project 
 from app.models.meeting import Meeting 
-from app.models.transcript import TranscriptSegment  
-from app.models.extraction import ExtractedItem  
-from app.models.fact import ProjectFact, ProjectFactRevision  
-from app.models.document_template import DocumentTemplate, TemplateSection  
+from app.models.transcript import TranscriptSegment 
+from app.models.extraction import ExtractedItem 
+from app.models.fact import ProjectFact, ProjectFactRevision 
+from app.models.document_template import DocumentTemplate, TemplateSection 
+from app.models.user import User  
+from app.models.audit_log import AuditLog  
+from app.models.generated_document import GeneratedDocument  

@@ -28,6 +28,7 @@ services:
       DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/meeting_docs
       OLLAMA_BASE_URL: http://host.docker.internal:11434
       OLLAMA_MODEL: qwen3:8b
+      JWT_SECRET_KEY: 899a2cffef3b2c93614d21ffb5eb0c031d892e4d5f6ce38ae3696da11b4515bf
     ports:
       - "8000:8000"
     extra_hosts:

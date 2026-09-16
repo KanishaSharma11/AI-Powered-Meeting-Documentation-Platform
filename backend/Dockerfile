@@ -1,5 +1,4 @@
-# Build context is the REPO ROOT (see docker-compose.yml), so this
-# Dockerfile can COPY both backend/ and frontend/.
+# Build context is the REPO ROOT, so this can COPY backend/.
 FROM python:3.12-slim
 
 WORKDIR /app

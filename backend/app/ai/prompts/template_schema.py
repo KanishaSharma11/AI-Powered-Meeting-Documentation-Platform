@@ -40,8 +40,7 @@ CLASSIFICATION RULES, IN ORDER:
    "Present").
 
 6. content_type = "dynamic_custom": the section clearly expects
-   MEETING-SPECIFIC content (something that should be pulled from
-   what was actually discussed), but does not match any of rules 1-5
+   MEETING-SPECIFIC content, but does not match any of rules 1-5
    above. Examples: "Budget Notes", "Vendor Commitments", "Stakeholder
    Concerns", "Technical Constraints", "Dependencies". When you choose
    this, you MUST also write custom_description: a specific,

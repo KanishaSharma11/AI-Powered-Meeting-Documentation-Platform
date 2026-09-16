@@ -14,7 +14,6 @@ class TemplateSectionOut(BaseModel):
     table_columns: list[str] | None
     static_text: str | None
     custom_description: str | None
-
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -24,7 +23,6 @@ class DocumentTemplateOut(BaseModel):
     original_filename: str
     sections: list[TemplateSectionOut]
     created_at: datetime
-
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -34,5 +32,4 @@ class DocumentTemplateSummary(BaseModel):
     original_filename: str
     section_count: int
     created_at: datetime
-
     model_config = ConfigDict(from_attributes=True)

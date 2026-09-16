@@ -4,7 +4,6 @@ from datetime import datetime
 from sqlalchemy import String, Text, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.models.meeting import Meeting
 
 from app.core.database import Base
 
@@ -13,10 +12,6 @@ class Project(Base):
     """
     Groups multiple meetings together so facts can be reconciled
     across them (Stage 3 — Knowledge Fusion, Section 2.4).
-
-    A meeting without a project behaves exactly as in Stage 1/2:
-    standalone, no cross-meeting fusion. Fusion only ever runs for
-    meetings that belong to a project.
     """
 
     __tablename__ = "projects"

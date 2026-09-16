@@ -9,14 +9,14 @@ export function ToastProvider({ children }) {
   const showToast = useCallback((message) => {
     setToast(message);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setToast(null), 2600);
+    timerRef.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
   return (
     <ToastContext.Provider value={showToast}>
       {children}
       <div
-        className={`fixed bottom-5 right-5 rounded-md bg-ink px-4 py-2.5 text-sm text-white shadow-lg transition-all duration-250 ${
+        className={`fixed bottom-5 right-5 z-50 max-w-sm rounded-md bg-ink px-4 py-2.5 text-sm text-white shadow-lg transition-all duration-300 ${
           toast ? 'opacity-100 translate-y-0' : 'pointer-events-none opacity-0 translate-y-2'
         }`}
       >

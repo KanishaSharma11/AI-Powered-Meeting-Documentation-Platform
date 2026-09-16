@@ -1,5 +1,4 @@
 import uuid
-
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 
@@ -18,11 +17,8 @@ async def upload_template(
     db: Session = Depends(get_db),
 ):
     """
-    Stage 4 entry point (Section 2.6): upload a client's own document
-    template (.docx). Parses its structure and classifies every
-    section — matching a fixed content type where possible, falling
-    back to live dynamic extraction criteria or static passthrough
-    otherwise (see services/template_upload_service.py).
+    Stage 4 entry point: upload a client's own document template
+    (.docx). Parses its structure and classifies every section.
     """
     if not file.filename.lower().endswith(".docx"):
         raise HTTPException(status_code=400, detail="Only .docx templates are supported.")
@@ -32,9 +28,7 @@ async def upload_template(
         raise HTTPException(status_code=400, detail="Uploaded file is empty.")
 
     try:
-        template = upload_and_classify_template(
-            db, file_bytes=file_bytes, name=name, original_filename=file.filename
-        )
+        template = upload_and_classify_template(db, file_bytes=file_bytes, name=name, original_filename=file.filename)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -46,11 +40,8 @@ def list_templates(db: Session = Depends(get_db)):
     templates = db.query(DocumentTemplate).order_by(DocumentTemplate.created_at.desc()).all()
     return [
         DocumentTemplateSummary(
-            id=t.id,
-            name=t.name,
-            original_filename=t.original_filename,
-            section_count=len(t.sections),
-            created_at=t.created_at,
+            id=t.id, name=t.name, original_filename=t.original_filename,
+            section_count=len(t.sections), created_at=t.created_at,
         )
         for t in templates
     ]

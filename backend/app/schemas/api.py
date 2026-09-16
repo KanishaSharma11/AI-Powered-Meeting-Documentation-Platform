@@ -1,10 +1,7 @@
 import uuid
 from datetime import date, datetime
-
 from pydantic import BaseModel, ConfigDict, Field
 
-
-# ---------- Projects (Stage 3) ----------
 
 class ProjectCreateRequest(BaseModel):
     name: str
@@ -17,11 +14,8 @@ class ProjectOut(BaseModel):
     description: str | None
     meeting_count: int
     created_at: datetime
-
     model_config = ConfigDict(from_attributes=True)
 
-
-# ---------- Transcript upload ----------
 
 class TranscriptUploadRequest(BaseModel):
     title: str = Field(default="Untitled Meeting")
@@ -32,8 +26,7 @@ class TranscriptUploadRequest(BaseModel):
         description=(
             "Optional. When set, accepted/edited items from this "
             "meeting are reconciled against the project's existing "
-            "facts (Stage 3 knowledge fusion). Omit for a standalone "
-            "meeting (Stage 1/2 behavior)."
+            "facts (Stage 3 knowledge fusion)."
         ),
     )
 
@@ -46,7 +39,6 @@ class MeetingSummary(BaseModel):
     project_id: uuid.UUID | None
     segment_count: int
     created_at: datetime
-
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -55,11 +47,8 @@ class TranscriptSegmentOut(BaseModel):
     speaker: str
     timestamp: str | None
     text: str
-
     model_config = ConfigDict(from_attributes=True)
 
-
-# ---------- Extraction / review ----------
 
 class ExtractedItemOut(BaseModel):
     id: uuid.UUID
@@ -68,26 +57,18 @@ class ExtractedItemOut(BaseModel):
     text: str
     owner: str | None
     due_date: str | None
-
     segment_id: str | None
     evidence_speaker: str | None
     evidence_timestamp: str | None
     evidence_text: str | None
-
     extraction_confidence: float
     source_baseline_confidence: float
     combined_confidence: float
     low_confidence: bool
-
     review_status: str
     edited_text: str | None
     final_text: str
-
-    # Stage 3: set once this item has been reconciled into a
-    # project-level fact (null for standalone meetings, or before
-    # the item has been accepted/edited).
     project_fact_id: uuid.UUID | None
-
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -102,12 +83,8 @@ class ExtractionRunResult(BaseModel):
 
 class ReviewAction(BaseModel):
     action: str = Field(description="One of: accept, edit, reject")
-    edited_text: str | None = Field(
-        default=None, description="Required when action='edit'."
-    )
+    edited_text: str | None = Field(default=None, description="Required when action='edit'.")
 
-
-# ---------- Project facts / knowledge fusion (Stage 3) ----------
 
 class ProjectFactRevisionOut(BaseModel):
     id: uuid.UUID
@@ -116,7 +93,6 @@ class ProjectFactRevisionOut(BaseModel):
     relation: str
     confidence: float
     created_at: datetime
-
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -133,20 +109,13 @@ class ProjectFactOut(BaseModel):
     revisions: list[ProjectFactRevisionOut]
     created_at: datetime
     updated_at: datetime
-
     model_config = ConfigDict(from_attributes=True)
 
 
 class ResolveConflictRequest(BaseModel):
-    """
-    Exactly one of chosen_revision_id or custom_text must be provided.
-    """
-
     chosen_revision_id: uuid.UUID | None = Field(
-        default=None,
-        description="Adopt the text of this existing revision as canonical.",
+        default=None, description="Adopt the text of this existing revision as canonical."
     )
     custom_text: str | None = Field(
-        default=None,
-        description="Or: write new canonical text directly (a third option, not just picking one side).",
+        default=None, description="Or: write new canonical text directly."
     )

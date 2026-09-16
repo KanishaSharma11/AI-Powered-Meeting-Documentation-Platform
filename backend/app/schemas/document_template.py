@@ -13,7 +13,6 @@ VALID_CONTENT_TYPES = {
 
 class TemplateSectionInput(BaseModel):
     """One raw parsed section shown to the classification agent."""
-
     section_index: int
     heading_text: str
     heading_level: int
@@ -41,10 +40,8 @@ class TemplateSectionClassification(BaseModel):
             "Required when content_type is 'dynamic_custom': a clear, "
             "specific natural-language description of what kind of "
             "meeting content belongs in this section, written so it "
-            "can guide a search of a meeting transcript (e.g. "
-            "'Budget-related figures, costs, or financial concerns "
-            "raised in the meeting'). Must be null for every other "
-            "content_type."
+            "can guide a search of a meeting transcript. Must be null "
+            "for every other content_type."
         ),
     )
     reasoning: str = Field(description="One short sentence explaining the choice.")

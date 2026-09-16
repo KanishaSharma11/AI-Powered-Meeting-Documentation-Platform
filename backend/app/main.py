@@ -9,7 +9,7 @@ from app.core.database import Base, engine
 # Import models so they're registered on Base.metadata before create_all.
 import app.models  # noqa: F401
 
-from app.api import transcript, extraction, mom, projects, templates, documents
+from app.api import auth, transcript, extraction, mom, projects, templates, documents
 
 
 @asynccontextmanager
@@ -39,12 +39,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router, prefix="/api")
 app.include_router(transcript.router, prefix="/api")
 app.include_router(extraction.router, prefix="/api")
 app.include_router(mom.router, prefix="/api")
 app.include_router(projects.router, prefix="/api")
 app.include_router(templates.router, prefix="/api")
-app.include_router(documents.router, prefix="/api")
+app.include_router(documents.meeting_documents_router, prefix="/api")
+app.include_router(documents.documents_router, prefix="/api")
 
 
 @app.get("/api")

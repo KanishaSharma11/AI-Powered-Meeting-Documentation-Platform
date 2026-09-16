@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
-:root {
+@theme {
   --color-paper: #F6F3EC;
   --color-paper-raised: #FFFFFF;
   --color-ink: #1F3B57;
@@ -14,6 +14,8 @@
   --color-brick-soft: #F5DCD9;
   --color-sage: #587A5C;
   --color-sage-soft: #DEE9DE;
+  --color-plum: #6B4C7A;
+  --color-plum-soft: #E6DCEB;
 
   --font-display: 'Source Serif 4', Georgia, serif;
   --font-body: 'Inter', system-ui, sans-serif;
@@ -26,10 +28,11 @@ body {
   font-family: var(--font-body);
 }
 
-::-webkit-scrollbar {
-  width: 10px;
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-thumb { background-color: var(--color-rule); border-radius: 6px; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-::-webkit-scrollbar-thumb {
-  background-color: var(--color-rule);
-  border-radius: 6px;
-}
+.animate-in { animation: fadeSlideIn 0.2s ease-out; }

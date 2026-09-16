@@ -14,11 +14,25 @@ class Settings(BaseSettings):
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "qwen2.5:7b"
 
+    # Stage 5: audio transcription (faster-whisper). "base" is a
+    # reasonable default speed/accuracy tradeoff on CPU; bump to
+    # "small"/"medium" for better accuracy if you have the CPU/GPU
+    # headroom. compute_type "int8" runs on CPU without a GPU.
+    WHISPER_MODEL_SIZE: str = "base"
+    WHISPER_DEVICE: str = "cpu"
+    WHISPER_COMPUTE_TYPE: str = "int8"
+
     UPLOAD_DIR: str = "data/transcripts/uploads"
     NORMALIZED_DIR: str = "data/transcripts/normalized"
     GENERATED_DIR: str = "data/generated/mom"
 
-        # NOTE: no separate object store (e.g. MinIO) is used. Raw
+    # Stage 6: JWT auth. JWT_SECRET_KEY MUST be overridden via a real
+    # secret in production .env — this default is only safe for local
+    # dev.
+    JWT_SECRET_KEY: str = "change-me-in-production-this-is-not-secret"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 8  # 8 hour workday session
+
+    # NOTE: no separate object store (e.g. MinIO) is used. Raw
     # transcript text lives in Postgres (transcript_segments), and
     # the MOM .docx is generated on-demand from DB state and streamed
     # straight to the client rather than persisted to disk/object

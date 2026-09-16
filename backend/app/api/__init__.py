@@ -1,1 +1,1 @@
-from app.api import transcript, extraction, mom, projects, templates, documents 
+from app.api import auth, transcript, extraction, mom, projects, templates, documents

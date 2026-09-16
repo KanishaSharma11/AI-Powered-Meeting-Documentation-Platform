@@ -6,17 +6,9 @@ from app.schemas.extraction import ActionItemsExtractionResult
 
 
 class ActionItemsAgent:
-    """
-    Extracts action items (task + owner + due date) from a normalized
-    transcript. Mirrors RequirementsDecisionsAgent's evidence-by-
-    segment-id design (see Section 2.5).
-    """
-
     def __init__(self):
         llm = get_llm()
-
         self.structured_llm = llm.with_structured_output(ActionItemsExtractionResult)
-
         self.prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", ACTION_ITEMS_SYSTEM_PROMPT),
@@ -39,7 +31,6 @@ class ActionItemsAgent:
                 ),
             ]
         )
-
         self.chain = self.prompt | self.structured_llm
 
     def extract(self, transcript: str) -> ActionItemsExtractionResult:

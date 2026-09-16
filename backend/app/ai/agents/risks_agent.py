@@ -6,17 +6,9 @@ from app.schemas.extraction import RisksExtractionResult
 
 
 class RisksAgent:
-    """
-    Extracts risks, blockers, and open questions from a normalized
-    transcript. Mirrors RequirementsDecisionsAgent's evidence-by-
-    segment-id design (see Section 2.5).
-    """
-
     def __init__(self):
         llm = get_llm()
-
         self.structured_llm = llm.with_structured_output(RisksExtractionResult)
-
         self.prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", RISKS_SYSTEM_PROMPT),
@@ -39,7 +31,6 @@ class RisksAgent:
                 ),
             ]
         )
-
         self.chain = self.prompt | self.structured_llm
 
     def extract(self, transcript: str) -> RisksExtractionResult:
