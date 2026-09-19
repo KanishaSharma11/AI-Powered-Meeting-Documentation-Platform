@@ -5,6 +5,7 @@ import { useToast } from '../lib/toast';
 import { ExtractionPanel } from './ExtractionPanel';
 import { MomPreview } from './MomPreview';
 import { DocumentsPanel } from './DocumentsPanel';
+import { EvidenceStats } from './EvidenceStats';
 
 const SECTIONS = [
   { id: 'review', label: 'Extraction & Review' },
@@ -100,37 +101,50 @@ export function MeetingWorkspace({ meeting }) {
   }
 
   const approvedCount = items.filter((i) => i.review_status === 'accepted' || i.review_status === 'edited').length;
+  const avgConfidence = items.length
+    ? (items.reduce((sum, i) => sum + i.combined_confidence, 0) / items.length) * 100
+    : 0;
 
   return (
     <div>
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+      <div className="reveal mb-5 flex flex-wrap items-end justify-between gap-4" style={{ '--d': '0s' }}>
         <div>
           <h2 className="font-display text-2xl text-ink">{meeting.title}</h2>
           <div className="mt-1 font-mono text-[11.5px] text-ink-soft">
-            {meeting.segment_count} transcript segments · source: {meeting.source_type}
+            source: {meeting.source_type}
           </div>
         </div>
         {canReview && (
           <button
             onClick={handleExtract}
             disabled={extracting}
-            className="rounded border border-rule px-3.5 py-2 text-[13px] font-semibold text-ink transition hover:border-ink disabled:opacity-40"
+            className="rounded border border-rule px-3.5 py-2 text-[13px] font-semibold text-ink shadow-[0_1px_2px_rgba(31,27,15,0.05)] transition-all duration-200 hover:border-ink hover:shadow-[0_4px_12px_-6px_rgba(31,59,87,0.4)] disabled:opacity-40 disabled:shadow-none"
           >
             {extracting ? 'Running agents…' : items.length > 0 ? 'Re-run Extraction' : 'Run Extraction'}
           </button>
         )}
       </div>
 
-      <div className="mb-5 flex gap-1 border-b border-rule">
+      <EvidenceStats
+        segmentCount={meeting.segment_count}
+        extractedCount={items.length}
+        acceptedCount={approvedCount}
+        avgConfidence={avgConfidence}
+      />
+
+      <div className="reveal mb-5 flex gap-1 border-b border-rule" style={{ '--d': '0.08s' }}>
         {SECTIONS.map((s) => (
           <button
             key={s.id}
             onClick={() => setSection(s.id)}
-            className={`border-b-2 px-3.5 py-2 text-[12.5px] font-semibold transition ${
-              section === s.id ? 'border-ink text-ink' : 'border-transparent text-ink-soft hover:text-ink'
+            className={`relative px-3.5 py-2 text-[12.5px] font-semibold transition-colors duration-200 ${
+              section === s.id ? 'text-ink' : 'text-ink-soft hover:text-ink'
             }`}
           >
             {s.label}
+            {section === s.id && (
+              <span className="absolute inset-x-3.5 -bottom-px h-0.5 rounded-full bg-ink" />
+            )}
           </button>
         ))}
       </div>

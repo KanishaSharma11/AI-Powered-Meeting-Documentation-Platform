@@ -93,13 +93,34 @@ class TranscriptNormalizationService:
                 return {"format": "speaker_colon", "timestamp": None, "speaker": speaker, "text": match.group("text").strip()}
         return None
 
-    @staticmethod
-    def _looks_like_speaker(value: str) -> bool:
+    METADATA_HEADER_LABELS = {
+        "date", "meeting", "meeting title", "title", "subject", "topic",
+        "participants", "attendees", "location", "duration", "time",
+        "agenda", "project", "client", "when", "where", "organizer",
+        "facilitator", "notes", "summary",
+    }
+    # Matches header-style date lines this parser should never treat as a
+    # speaker name, e.g. "June 19, 2026", "19 June 2026", "6/19/2026",
+    # "2026-06-19".
+    DATE_LIKE_PATTERN = re.compile(
+        r"^(?:"
+        r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}"
+        r"|\d{4}-\d{2}-\d{2}"
+        r"|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s*\d{2,4}"
+        r"|\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,?\s*\d{2,4}"
+        r")$",
+        re.IGNORECASE,
+    )
+
+    @classmethod
+    def _looks_like_speaker(cls, value: str) -> bool:
         if not value: return False
         value = value.strip()
         if len(value) > 100: return False
         if len(value.split()) > 12: return False
         if not re.search(r"[A-Za-z0-9]", value): return False
+        if value.strip().lower() in cls.METADATA_HEADER_LABELS: return False
+        if cls.DATE_LIKE_PATTERN.match(value): return False
         return True
 
     @staticmethod

@@ -8,7 +8,7 @@ from app.schemas.extraction import ActionItemsExtractionResult
 class ActionItemsAgent:
     def __init__(self):
         llm = get_llm()
-        self.structured_llm = llm.with_structured_output(ActionItemsExtractionResult)
+        self.structured_llm = llm.with_structured_output(ActionItemsExtractionResult, method="json_schema")
         self.prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", ACTION_ITEMS_SYSTEM_PROMPT),

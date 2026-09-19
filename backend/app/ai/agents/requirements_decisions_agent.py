@@ -8,7 +8,7 @@ from app.schemas.extraction import ExtractionResult
 class RequirementsDecisionsAgent:
     def __init__(self):
         llm = get_llm()
-        self.structured_llm = llm.with_structured_output(ExtractionResult)
+        self.structured_llm = llm.with_structured_output(ExtractionResult, method="json_schema")
         self.prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", REQUIREMENTS_DECISIONS_SYSTEM_PROMPT),

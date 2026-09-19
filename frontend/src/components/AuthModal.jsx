@@ -23,8 +23,8 @@ export function AuthModal({ onClose }) {
         const me = await register(email, password);
         showToast(
           me.role === 'admin'
-            ? "Registered — you're the first user, so you're an admin."
-            : 'Registered — an admin can upgrade your role when needed.'
+            ? "Registered - you're the first user, so you're an admin."
+            : 'Registered - an admin can upgrade your role when needed.'
         );
       }
       onClose();

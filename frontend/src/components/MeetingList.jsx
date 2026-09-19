@@ -7,9 +7,9 @@ const SOURCE_LABELS = {
 export function MeetingList({ meetings, loading, error, selectedId, onSelect }) {
   return (
     <div className="mt-6">
-      <h2 className="font-display text-[17px] text-ink">Meetings</h2>
+      <h2 className="font-display text-[19px] text-ink">Meetings</h2>
 
-      <div className="mt-3">
+      <div className="mt-3.5 space-y-1.5">
         {loading && <span className="text-[12.5px] text-ink-soft">Loading…</span>}
 
         {!loading && error && (
@@ -26,15 +26,15 @@ export function MeetingList({ meetings, loading, error, selectedId, onSelect }) 
             <div
               key={m.id}
               onClick={() => onSelect(m)}
-              className={`mb-1 cursor-pointer rounded-md border px-2.5 py-2 text-[13.5px] transition ${
+              className={`cursor-pointer rounded-md border-l-[3px] px-3 py-2.5 text-[13.5px] transition-all duration-200 ${
                 selectedId === m.id
-                  ? 'border-rule bg-paper-raised'
-                  : 'border-transparent hover:bg-paper-raised'
+                  ? 'card-raised border-l-ink bg-paper-raised'
+                  : 'border-l-transparent hover:card-raised hover:bg-paper-raised'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="font-semibold text-ink">{m.title}</div>
-                <span className="rounded-sm border border-rule px-1.5 py-0.5 font-mono text-[9px] uppercase text-ink-soft">
+                <span className="rounded-sm border border-rule px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-ink-soft">
                   {SOURCE_LABELS[m.source_type] || m.source_type}
                 </span>
               </div>

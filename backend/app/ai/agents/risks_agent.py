@@ -8,7 +8,7 @@ from app.schemas.extraction import RisksExtractionResult
 class RisksAgent:
     def __init__(self):
         llm = get_llm()
-        self.structured_llm = llm.with_structured_output(RisksExtractionResult)
+        self.structured_llm = llm.with_structured_output(RisksExtractionResult, method="json_schema")
         self.prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", RISKS_SYSTEM_PROMPT),

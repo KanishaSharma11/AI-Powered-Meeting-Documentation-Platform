@@ -16,6 +16,18 @@ def _resolve_evidence(db, meeting_id, segment_id):
 def _combined_confidence(baseline, extraction_confidence):
     return round(baseline * extraction_confidence, 4)
 
+def _require_result(result, agent_label: str):
+    if result is None:
+        raise ValueError(
+            f"The {agent_label} did not return a usable structured response from the "
+            "model. This usually means the local LLM's reply couldn't be parsed into "
+            "the expected schema. Try re-running extraction; if it keeps happening, "
+            "check the Ollama container logs and confirm OLLAMA_MODEL supports "
+            "structured/JSON output."
+        )
+    return result
+
+
 def run_extraction(db: Session, meeting: Meeting):
     segments = db.query(TranscriptSegment).filter(TranscriptSegment.meeting_id == meeting.id).order_by(TranscriptSegment.source_line_start).all()
     if not segments:
@@ -24,15 +36,15 @@ def run_extraction(db: Session, meeting: Meeting):
     baseline = settings.SOURCE_BASELINE_CONFIDENCE.get(meeting.source_type, settings.SOURCE_BASELINE_CONFIDENCE["official_transcript"])
     db.query(ExtractedItem).filter(ExtractedItem.meeting_id == meeting.id).delete()
     created = []
-    req_dec_result = RequirementsDecisionsAgent().extract(transcript_block)
+    req_dec_result = _require_result(RequirementsDecisionsAgent().extract(transcript_block), "Requirements/Decisions agent")
     for req in req_dec_result.requirements:
         created.append(_build_item(db, meeting.id, "requirement", "requirements_decisions_agent", req.text, req.evidence.segment_id, req.confidence, baseline))
     for dec in req_dec_result.decisions:
         created.append(_build_item(db, meeting.id, "decision", "requirements_decisions_agent", dec.text, dec.evidence.segment_id, dec.confidence, baseline))
-    action_result = ActionItemsAgent().extract(transcript_block)
+    action_result = _require_result(ActionItemsAgent().extract(transcript_block), "Action Items agent")
     for item in action_result.action_items:
         created.append(_build_item(db, meeting.id, "action_item", "action_items_agent", item.text, item.evidence.segment_id, item.confidence, baseline, owner=item.owner, due_date=item.due_date))
-    risks_result = RisksAgent().extract(transcript_block)
+    risks_result = _require_result(RisksAgent().extract(transcript_block), "Risks/Open Questions agent")
     for item in risks_result.items:
         created.append(_build_item(db, meeting.id, item.category, "risks_agent", item.text, item.evidence.segment_id, item.confidence, baseline))
     db.add_all(created)

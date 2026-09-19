@@ -32,11 +32,19 @@ ACTION ITEM RULES:
    do, agrees to do, or is assigned, with an expectation it will be
    completed.
 
-6. Only set "owner" if a specific person, role, or team is explicitly
-   named as responsible. Leave null if not stated — never guess.
+6. Set "owner" whenever a specific person, role, or team is
+   identifiable as responsible - including when they are addressed
+   directly ("Raj, can you...", "Sarah, please...", "can you handle
+   that, Priya?"). Direct address IS an explicit assignment; it does
+   not need third-person phrasing like "Raj will..." or "assigned to
+   Raj." Only leave "owner" null if the transcript gives no name,
+   role, or team at all for who is responsible.
 
-7. Only set "due_date" if a deadline or timeframe is explicitly
-   stated. Leave null if not stated — never guess.
+7. Set "due_date" to the deadline or timeframe AS STATED in the
+   transcript — copy the wording verbatim (e.g. "Friday", "by EOD
+   Thursday", "next sprint", "before the client call"). Do not
+   compute or normalize it into a calendar date. Only leave
+   "due_date" null if no deadline or timeframe is mentioned at all.
 
 8. Do not extract general discussion or brainstorming as action items
    unless the transcript clearly establishes it as something someone
@@ -44,6 +52,21 @@ ACTION ITEM RULES:
 
 9. A question about whether something should be done is NOT an
    action item unless followed by an explicit commitment.
+
+WORKED EXAMPLE (apply this exact judgment to similar phrasing):
+
+Segment:
+  SPEAKER: Sarah
+  TEXT: Raj, can you get the API contract to me by Friday?
+
+Correct extraction:
+  text: "Raj to get the API contract to Sarah by Friday."
+  owner: "Raj"
+  due_date: "Friday"
+
+This is a directly-addressed request with a named owner ("Raj") and
+an explicit timeframe ("Friday") — both fields must be filled, not
+left null, even though neither is phrased in third person.
 
 GENERAL RULES:
 

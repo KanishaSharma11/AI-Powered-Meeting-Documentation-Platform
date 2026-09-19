@@ -24,6 +24,7 @@
 
 body {
   background-color: var(--color-paper);
+  background-image: radial-gradient(circle at 12% -10%, rgba(31, 59, 87, 0.05), transparent 45%);
   color: var(--color-body);
   font-family: var(--font-body);
 }
@@ -36,3 +37,42 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-in { animation: fadeSlideIn 0.2s ease-out; }
+
+/* Staggered entrance for workspace chrome — reveal delay set per-element via --d */
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal {
+  opacity: 0;
+  animation: reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--d, 0s);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; animation: none; }
+}
+
+/* One deliberate motion: the settle of a reviewer's decision landing. */
+@keyframes stampIn {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.018); }
+  100% { transform: scale(1); }
+}
+.animate-stamp { animation: stampIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Index cards lifted off the desk — soft, layered, not the flat single
+   grey SaaS shadow. Interactive ones lift a touch further on hover. */
+.card-raised {
+  box-shadow:
+    0 1px 2px rgba(31, 27, 15, 0.05),
+    0 8px 20px -10px rgba(31, 27, 15, 0.14);
+  transition:
+    box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-raised-interactive:hover {
+  box-shadow:
+    0 2px 4px rgba(31, 27, 15, 0.06),
+    0 16px 32px -12px rgba(31, 27, 15, 0.2);
+  transform: translateY(-2px);
+}
